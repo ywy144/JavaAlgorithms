@@ -3,14 +3,13 @@ package concurrent.problem.pac;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-public class Producer implements Runnable {
+public class IntegerProducer implements Runnable {
 
     private final BlockingDeque<Integer> deque;
 
-    private final AtomicInteger actionCount;
+    private int product;
 
     private final int sleepTime;
 
@@ -19,7 +18,8 @@ public class Producer implements Runnable {
     @Override
     public void run() {
         for (int i = 0; i < iterations; i++) {
-            deque.offerFirst(actionCount.getAndIncrement());
+            deque.offerFirst(product);
+            product++;
             try {
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
@@ -29,9 +29,9 @@ public class Producer implements Runnable {
         }
     }
 
-    public Producer(BlockingDeque<Integer> deque, AtomicInteger actionCount, int sleepTime, int iterations) {
+    public IntegerProducer(BlockingDeque<Integer> deque, int product, int sleepTime, int iterations) {
         this.deque = deque;
-        this.actionCount = actionCount;
+        this.product = product;
         this.sleepTime = sleepTime;
         this.iterations = iterations;
     }

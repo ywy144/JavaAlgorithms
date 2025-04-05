@@ -13,9 +13,9 @@ public abstract class PACLockDeque<T> implements BlockingDeque<T> {
 
     protected Deque<T> delegate;
 
-    protected int capacity;
+    protected int capacity = 10;
 
-    protected static final int defaultCapacity = 10;
+    protected boolean limitCapacity = false;
 
     public PACLockDeque(Deque<T> deque) {
         capacity = deque.size();
@@ -27,8 +27,13 @@ public abstract class PACLockDeque<T> implements BlockingDeque<T> {
         delegate = new ArrayDeque<>(capacity);
     }
 
+    public PACLockDeque(int capacity, boolean limitCapacity) {
+        this.capacity = capacity;
+        this.limitCapacity = limitCapacity;
+        delegate = new ArrayDeque<>(capacity);
+    }
+
     public PACLockDeque() {
-        capacity = defaultCapacity;
         delegate = new ArrayDeque<>(capacity);
     }
 

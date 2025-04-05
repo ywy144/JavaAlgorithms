@@ -3,14 +3,11 @@ package concurrent.problem.pac;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-public class Consumer implements Runnable {
+public class Consumer<T> implements Runnable {
 
-    private final BlockingDeque<Integer> deque;
-
-    private final AtomicInteger actionCount;
+    private final BlockingDeque<T> deque;
 
     private final int sleepTime;
 
@@ -29,9 +26,8 @@ public class Consumer implements Runnable {
         }
     }
 
-    public Consumer(BlockingDeque<Integer> deque, AtomicInteger actionCount, int sleepTime, int iterations) {
+    public Consumer(BlockingDeque<T> deque, int sleepTime, int iterations) {
         this.deque = deque;
-        this.actionCount = actionCount;
         this.sleepTime = sleepTime;
         this.iterations = iterations;
     }

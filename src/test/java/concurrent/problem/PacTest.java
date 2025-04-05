@@ -1,9 +1,9 @@
 package concurrent.problem;
 
 import concurrent.problem.pac.Consumer;
+import concurrent.problem.pac.IntegerProducer;
 import concurrent.problem.pac.PACLockDeque;
-import concurrent.problem.pac.PACReentrantLockDeque;
-import concurrent.problem.pac.Producer;
+import concurrent.problem.pac.PACRLockDeque;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class PacTest {
@@ -27,20 +26,40 @@ public class PacTest {
             new ThreadPoolExecutor.DiscardOldestPolicy() // 拒绝策略
     );
 
-    private static final AtomicInteger actionCount = new AtomicInteger(0);
-
     @Test
     public void PACReentrantLockDequeTest() throws InterruptedException {
         long start = System.nanoTime();
-        PACLockDeque<Integer> deque = new PACReentrantLockDeque<>(10);
-        executor.submit(new Producer(deque, actionCount, 1, 500));
-        executor.submit(new Producer(deque, actionCount, 1, 500));
-        executor.submit(new Producer(deque, actionCount, 1, 500));
-        executor.submit(new Producer(deque, actionCount, 1, 500));
-        executor.submit(new Consumer(deque, actionCount, 1, 500));
-        executor.submit(new Consumer(deque, actionCount, 1, 500));
-        executor.submit(new Consumer(deque, actionCount, 1, 500));
-        executor.submit(new Consumer(deque, actionCount, 1, 500));
+        PACLockDeque<Integer> deque = new PACRLockDeque<>(10);
+        executor.submit(new IntegerProducer(deque, 1, 1, 500));
+        executor.submit(new IntegerProducer(deque,1001, 1, 500));
+        executor.submit(new IntegerProducer(deque, 5001, 1, 500));
+        executor.submit(new IntegerProducer(deque, 10001, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.shutdown();
+        executor.awaitTermination(2, TimeUnit.SECONDS);
+        long end = System.nanoTime();
+        log.debug("PACReentrantLockDequeTest took " + (end - start) / 1_000_000 + " ms");
+    }
+
+    /**
+     * 限制 pacLockDeque 容量
+     * @throws InterruptedException
+     */
+    @Test
+    public void PACReentrantLockDequeTest2() throws InterruptedException {
+        long start = System.nanoTime();
+        PACLockDeque<Integer> deque = new PACRLockDeque<>(10, true);
+        executor.submit(new IntegerProducer(deque, 1, 1, 500));
+        executor.submit(new IntegerProducer(deque,1001, 1, 500));
+        executor.submit(new IntegerProducer(deque, 5001, 1, 500));
+        executor.submit(new IntegerProducer(deque, 10001, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
         executor.shutdown();
         executor.awaitTermination(2, TimeUnit.SECONDS);
         long end = System.nanoTime();
@@ -51,14 +70,14 @@ public class PacTest {
     public void PACLinkedBlockingDequeTest() throws InterruptedException {
         long start = System.nanoTime();
         LinkedBlockingDeque<Integer> deque = new LinkedBlockingDeque<>(10);
-        executor.submit(new Producer(deque, actionCount, 1, 500));
-        executor.submit(new Producer(deque, actionCount, 1, 500));
-        executor.submit(new Producer(deque, actionCount, 1, 500));
-        executor.submit(new Producer(deque, actionCount, 1, 500));
-        executor.submit(new Consumer(deque, actionCount, 1, 500));
-        executor.submit(new Consumer(deque, actionCount, 1, 500));
-        executor.submit(new Consumer(deque, actionCount, 1, 500));
-        executor.submit(new Consumer(deque, actionCount, 1, 500));
+        executor.submit(new IntegerProducer(deque, 1, 1, 500));
+        executor.submit(new IntegerProducer(deque,1001, 1, 500));
+        executor.submit(new IntegerProducer(deque, 5001, 1, 500));
+        executor.submit(new IntegerProducer(deque, 10001, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
+        executor.submit(new Consumer<>(deque, 1, 500));
         executor.shutdown();
         executor.awaitTermination(2, TimeUnit.SECONDS);
         long end = System.nanoTime();
